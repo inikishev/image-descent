@@ -10,7 +10,7 @@ for i in range(2000):
     optimizer.zero_grad()
     descent.step() # sets the .grad attribute
     optimizer.step()
-imd.plot_path()
+descent.plot_path()
 ```
 Adam:
 ![image](https://github.com/stunlocked1/image-descent/assets/76593873/4e07bfaf-a275-4e2f-ae9d-cff6fd2449b2)
