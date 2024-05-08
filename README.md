@@ -11,7 +11,6 @@ image = r"surfaces/spiral.jpg"
 # The coordinates always start at (-1,-1) - top left corner, and (1,1) is bottom right corner.
 descent = ImageDescent(image, init=(0.785,0))
 
-
 optimizer = torch.optim.Adam(descent.parameters(), lr=0.05)
 for i in range(2000):
     optimizer.zero_grad()
