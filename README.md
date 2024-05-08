@@ -35,4 +35,6 @@ Second order random search:
 I doubt that a spiral tells you much about how well an optimizer works. Maybe there are some good images to test them on, but also I need to add some randomness to each step to make it more realistic. At least it shows if your momentum works okay.
 
 ## How it works
-X and Y coordinates are the parameters that the optimizers try to optimize to find the lowest (darkest) spot on the image. The gradients are simple to calculate, using numpy.gradient(image), which just calculates differences between every adjascent pixel in both dimensions, and returns the two dimensions as a tuple. 
+X and Y coordinates are the parameters that the optimizers try to optimize to find the lowest (darkest) spot on the image. Loss is given by `image[current_coordinates]`.
+
+The gradients are pre-calculated as numpy.gradient(image). This calculates differences between every adjascent pixel along all axes, which is equivalent to calculating mean difference between the original image and image shifted by one pixel to the right to get X-axis gradient, and one pixel to the bottom to get Y-axis gradient. Then `x_gradient[current_coordinates]` is the X-coordinate gradient for the current point. However since coordinates are not discrete, [torch.nn.functional.grid_sample](https://pytorch.org/docs/stable/generated/torch.nn.functional.grid_sample.html) is used to interpolate them.
