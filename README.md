@@ -13,16 +13,21 @@ for i in range(2000):
 descent.plot_path()
 ```
 Adam:
+
 ![image](https://github.com/stunlocked1/image-descent/assets/76593873/4e07bfaf-a275-4e2f-ae9d-cff6fd2449b2)
 
 SGD:
+
 ![image](https://github.com/stunlocked1/image-descent/assets/76593873/ef8962ee-ee28-428d-a133-757cc6836f3a)
 
 Lion (https://github.com/lucidrains/lion-pytorch):
+
 ![image](https://github.com/stunlocked1/image-descent/assets/76593873/cedc7001-5969-44bd-8ae4-9d06c42fef07)
 
 Fromage (https://github.com/jxbz/fromage):
+
 ![image](https://github.com/stunlocked1/image-descent/assets/76593873/080a25ae-c9ff-4791-a606-343ad8ae6463)
 
-Second order random search
+Second order random search:
+
 ![image](https://github.com/stunlocked1/image-descent/assets/76593873/00d1601a-3ace-4c16-bb43-f7ce5f0a20be)
