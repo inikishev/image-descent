@@ -1,11 +1,16 @@
 # Pytorch image descent
 A library to test optimizers by visualizing how they descend on a your images. You can draw your own custom loss landscape and see what different optimizers do. Example:
 ```py
-image = r"surfaces/spiral.jpg" # you can put path to an image or a numpy array / torch tensor.
-# It will be converted into black-and-white channel-last.
 from image_descent import ImageDescent
-descent = ImageDescent(image, init=(0.785,0)) # init is the initial coordinate.
+
+# you can put path to an image or a numpy array / torch tensor.
+# It will be converted into black-and-white channel-last.
+image = r"surfaces/spiral.jpg"
+
+# init is the initial coordinate.
 # The coordinates always start at (-1,-1) - top left corner, and (1,1) is bottom right corner.
+descent = ImageDescent(image, init=(0.785,0))
+
 
 optimizer = torch.optim.Adam(descent.parameters(), lr=0.05)
 for i in range(2000):
