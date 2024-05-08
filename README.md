@@ -1,5 +1,5 @@
 # Pytorch image descent
-A library to test optimizers by visualizing how they descend on a your images. You can draw your own custom loss landscape and see what different optimizers do. Example:
+A library to test optimizers by visualizing how they descend on a your images. You can draw your own custom loss landscape and see what different optimizers do. The use is mostly to see if momentum works as you intended, but maybe there are other uses. Example:
 ```py
 from image_descent import ImageDescent
 
