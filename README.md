@@ -3,7 +3,8 @@ A library to test optimizers by visualizing how they descend on a your images. Y
 ```py
 image = r"surfaces/spiral.jpg" # you can put path to an image or a numpy array / torch tensor. It will be converted into black-and-white channel-last.
 from image_descent import ImageDescent
-descent = ImageDescent(image, init=(0.785,0)) # init is the initial coordinate. The coordinates always start at (-1,-1) - top left corner, and (1,1) is bottom right corner. This is because [torch.nn.functional.grid_sample](https://pytorch.org/docs/stable/generated/torch.nn.functional.grid_sample.html) is used to interpolate values between pixels.
+descent = ImageDescent(image, init=(0.785,0)) # init is the initial coordinate.
+# The coordinates always start at (-1,-1) - top left corner, and (1,1) is bottom right corner.
 
 optimizer = torch.optim.Adam(descent.parameters(), lr=0.05)
 for i in range(2000):
@@ -37,4 +38,4 @@ I doubt that a spiral tells you much about how well an optimizer works. Maybe th
 ## How it works
 X and Y coordinates are the parameters that the optimizers try to optimize to find the lowest (darkest) spot on the image. Loss is given by `image[current_coordinates]`.
 
-The gradients are pre-calculated as `numpy.gradient(image)`. This calculates differences between every adjascent pixel along all axes, which is equivalent to calculating mean difference between the original image and image shifted by one pixel to the right to get X-axis gradient, and one pixel to the bottom to get Y-axis gradient. Then `x_gradient[current_coordinates]` is the X-coordinate gradient for the current point. However since coordinates are not discrete, [torch.nn.functional.grid_sample](https://pytorch.org/docs/stable/generated/torch.nn.functional.grid_sample.html) is used to interpolate them.
+The gradients are pre-calculated as `numpy.gradient(image)`. This calculates differences between every adjascent pixel along all axes, which is equivalent to calculating mean difference between the original image and image shifted by one pixel to the right to get X-axis gradient, and one pixel to the bottom to get Y-axis gradient. Then `x_gradient[current_coordinates]` is the X-coordinate gradient for the current point. However since coordinates are not discrete, [torch.nn.functional.grid_sample](https://pytorch.org/docs/stable/generated/torch.nn.functional.grid_sample.html) is used to interpolate them. Thats why coordinates start at (-1,-1) and end at (1,1).
