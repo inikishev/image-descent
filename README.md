@@ -5,12 +5,11 @@ image = r"surfaces/spiral.jpg"
 from image_descent import ImageDescent
 descent = ImageDescent(image, init=(0.785,0))
 
-opt = torch.optim.Adam(imd.parameters(), lr=0.05)
+optimizer = torch.optim.Adam(descent.parameters(), lr=0.05)
 for i in range(2000):
-    opt.zero_grad()
-    loss = imd.step()
-    opt.step()
-    if i % 100 == 0: print(i, loss, end='        \r')
+    optimizer.zero_grad()
+    descent.step() # sets the .grad attribute
+    optimizer.step()
 imd.plot_path()
 ```
 Adam:
