@@ -31,3 +31,5 @@ Fromage (https://github.com/jxbz/fromage):
 Second order random search:
 
 ![image](https://github.com/stunlocked1/image-descent/assets/76593873/00d1601a-3ace-4c16-bb43-f7ce5f0a20be)
+
+I doubt that a spiral tells you much about how well an optimizer works. Maybe there are some good images to test them on, but also I need to add some randomness to each step to make it more realistic. At least it shows if your momentum works okay.
