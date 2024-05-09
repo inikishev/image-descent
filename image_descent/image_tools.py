@@ -48,7 +48,7 @@ def imread(__path_or_array):
 
 def prepare_image(image:np.ndarray | torch.Tensor) -> torch.Tensor:
     # convert to tensor
-    if isinstance(image, np.ndarray): image = torch.from_numpy(image.copy())
+    if isinstance(image, np.ndarray): image = torch.from_numpy(image.copy()).to(torch.float64)
 
     if image.ndim > 3: raise ValueError(f"prepare_image: Image has invalid shape {image.shape}, it must be 2 or 3 dimensional.")
 

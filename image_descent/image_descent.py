@@ -5,7 +5,7 @@ import numpy as np
 import torch
 from .image_tools import imread, prepare_image
 from .interpolation import get_interpolated_value_torch
-from .gradients import get_gradients_by_shifting
+from .gradients import get_gradients_by_shifting, out_of_bounds_soft, out_of_bounds_hard
 from .smoothing import smooth_gaussian
 from .python_tools import Compose
 from .plotting import ax_plot
@@ -25,7 +25,8 @@ class ImageDescent(torch.nn.Module):
         loader: Callable | Sequence[Callable] = load_image,
         grad_fn: Callable | Sequence[Callable] = get_gradients_by_shifting,
         smooth_fn: Optional[Callable | Sequence[Callable]] = smooth_gaussian,
-        interp_fn = get_interpolated_value_torch,
+        interp_fn: Callable = get_interpolated_value_torch,
+        outofbounds_fn: Callable = out_of_bounds_hard,
 
         img_init: Optional[Callable | Sequence[Callable]] = None,
         img_step: Optional[Callable | Sequence[Callable]] = None,
@@ -43,7 +44,8 @@ class ImageDescent(torch.nn.Module):
             loader (Callable | Sequence[Callable], optional): Function to load the image and make it black and white. Defaults to load_image.
             grad_fn (Callable | Sequence[Callable], optional): Function to calculate the gradients. Defaults to get_gradients_by_shifting.
             smooth_fn (Optional[Callable  |  Sequence[Callable]], optional): Function to smooth the image with `smooth`. Defaults to smooth_gaussian.
-            interp_fn (_type_, optional): Function to interpolate float coordinates. Defaults to get_interpolated_value_torch.
+            interp_fn (Callable): Function to interpolate float coordinates. Defaults to get_interpolated_value_torch.
+            outofbounds_fn (Callable): Function to handle out of bounds coordinates. Defaults to out_of_bounds_soft.
             img_init (Optional[Callable  |  Sequence[Callable]], optional): Optional function or sequence of functions that will be applied to the image after loading it and before calculating gradients, e.g. any additional transforms you need like resizing or whatever. Defaults to None.
             img_step (Optional[Callable  |  Sequence[Callable]], optional): Optional function or sequence of functions that will be applied to the image before each step, for example random transformations like randomly adding noise, etc. If this is specified, gradient will be recalculated each step from the transformed image. Defaults to None.
             grad_init (Optional[Callable  |  Sequence[Callable]], optional): Optional function or sequence of functions that will be applied to the gradients after calculating them. Defaults to None.
@@ -55,6 +57,7 @@ class ImageDescent(torch.nn.Module):
         self.smooth = smooth
         self.grad_fn = grad_fn
         self.interp_fn = interp_fn
+        self.outofbounds_fn = outofbounds_fn
 
         # load the image
         self.image: torch.Tensor = Compose(loader)(__path_or_array).to(self.dtype)
@@ -112,6 +115,9 @@ class ImageDescent(torch.nn.Module):
         # we get the gradient for each axis at current coordinates, and since coords will be floats, the values will be interpolated
         grad = torch.zeros(self.ndim, dtype=self.dtype)
         for i, param_grad in enumerate(gradients): grad[i] = self.interp_fn(param_grad, coords_detached)
+
+        # handle optimizers going outside of the image
+        grad = self.outofbounds_fn(coords_detached, grad)
 
         # then we set that gradient into the grad attribute that all optimizers use
         # gradients are accumulated as usual
