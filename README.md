@@ -7,9 +7,9 @@ from image_descent import ImageDescent
 # It will be converted into black-and-white channel-last.
 image = r"surfaces/spiral.jpg"
 
-# init is the initial coordinate.
-# The coordinates always start at (-1,-1) - top left corner, and (1,1) is bottom right corner.
-descent = ImageDescent(image, init=(0.785,0))
+# coords are the initial coordinate to start optimization from
+# either pixel location (int), or relative coordinates in (-1,-1) to (1,1) range (float).
+descent = ImageDescent(image, coords=(915, 500))
 
 optimizer = torch.optim.Adam(descent.parameters(), lr=0.05)
 for i in range(2000):
