@@ -47,12 +47,6 @@ descent.plot_path()
 ```
 ![image](https://github.com/stunlocked1/image-descent/assets/76593873/5f9dedbb-29bb-489d-98cd-740803c34524)
 
-## Installation
-In case you want to install it use
-```py
-pip install git+https://github.com/stunlocked1/image-descent
-```
-
 ## How it works
 X and Y coordinates are the parameters that the optimizers try to optimize to find the lowest (darkest) spot on the image. Loss is given by `image[current_coordinates]`.
 
@@ -62,7 +56,7 @@ Then `x_gradient[current_coordinates]` is the X-coordinate gradient for the curr
 
 However since coordinates are not discrete, [torch.nn.functional.grid_sample](https://pytorch.org/docs/stable/generated/torch.nn.functional.grid_sample.html) is used to interpolate them. Thats why coordinates start at (-1,-1) and end at (1,1).
 
-## more images
+## More images
 I've used the same
 ```
 descent = ImageDescent(image, initial_coords, img_step=[random_shift, add_noise])
@@ -92,3 +86,9 @@ opt = Fromage(descent.parameters(), 2e-1) (https://github.com/jxbz/fromage)
 opt = RandomDeltaSearch(descent.parameters(), 4e-2) (second order random search)
 
 ![image](https://github.com/stunlocked1/image-descent/assets/76593873/27251178-5392-45b4-b88a-95002d70df04)
+
+
+## Installation
+```py
+pip install git+https://github.com/stunlocked1/image-descent
+```
