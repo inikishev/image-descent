@@ -1,5 +1,5 @@
 # Pytorch image descent
-A library to test optimizers by visualizing how they descend on a your images. You can draw your own custom loss landscape and see what different optimizers do. The use is mostly to see if momentum works as you intended, but maybe there are other uses. Example:
+A library to test optimizers by visualizing how they descend on a your images. You can draw your own custom loss landscape and see what different optimizers do. The use is mostly to see if your momentum works as intended, but maybe there are other uses. Example:
 ```py
 from image_descent import ImageDescent
 
@@ -51,7 +51,11 @@ descent.plot_path()
 ## How it works
 X and Y coordinates are the parameters that the optimizers try to optimize to find the lowest (darkest) spot on the image. Loss is given by `image[current_coordinates]`.
 
-The gradients are pre-calculated as `numpy.gradient(image)`. This calculates differences between every adjascent pixel along all axes, which is equivalent to calculating mean difference between the original image and image shifted by one pixel to the right to get X-axis gradient, and one pixel to the bottom to get Y-axis gradient. Then `x_gradient[current_coordinates]` is the X-coordinate gradient for the current point. However since coordinates are not discrete, [torch.nn.functional.grid_sample](https://pytorch.org/docs/stable/generated/torch.nn.functional.grid_sample.html) is used to interpolate them. Thats why coordinates start at (-1,-1) and end at (1,1).
+The gradients are calculated as differences between every adjascent pixel along all axes (like this: `gradx, grady = (image[1:] - image[:-1], image[:,1:] - image[:,:-1])`. 
+
+Then `x_gradient[current_coordinates]` is the X-coordinate gradient for the current point. 
+
+However since coordinates are not discrete, [torch.nn.functional.grid_sample](https://pytorch.org/docs/stable/generated/torch.nn.functional.grid_sample.html) is used to interpolate them. Thats why coordinates start at (-1,-1) and end at (1,1).
 
 ## Images
 I've used the same
