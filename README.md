@@ -20,7 +20,7 @@ descent.plot_path()
 ```
 ![image](https://github.com/stunlocked1/image-descent/assets/76593873/18dea516-3208-4966-9dcd-9282d2a9fc5d)
 
-Now to get a more accurate simulation we can make it stochastic by adding some randomness - adding noise and randomly shifting the loss landscape before each step:
+We can make it more stochastic - for example adding noise and randomly shifting the loss landscape before each step:
 ```py
 import random
 
