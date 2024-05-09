@@ -83,6 +83,10 @@ opt = Fromage(descent.parameters(), 2e-1) (https://github.com/jxbz/fromage)
 
 ![image](https://github.com/stunlocked1/image-descent/assets/76593873/54cbfaa3-f293-49d5-af18-84a161dfedaa)
 
+opt = SophiaG(descent.parameters(), 1e-2) (https://github.com/Liuhong99/Sophia)
+
+![image](https://github.com/stunlocked1/image-descent/assets/76593873/5a1d8734-a847-4ad5-bca8-5b7b7fda4c9c)
+
 opt = RandomDeltaSearch(descent.parameters(), 4e-2) (second order random search)
 
 ![image](https://github.com/stunlocked1/image-descent/assets/76593873/27251178-5392-45b4-b88a-95002d70df04)
