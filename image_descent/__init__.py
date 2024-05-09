@@ -1,1 +1,1 @@
-from .image_descent2 import ImageDescent
+from .image_descent import ImageDescent
