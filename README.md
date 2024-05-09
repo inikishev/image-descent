@@ -82,6 +82,12 @@ opt = Lion(descent.parameters(), 3e-2) (https://github.com/lucidrains/lion-pytor
 
 opt = Fromage(descent.parameters(), 2e-1) (https://github.com/jxbz/fromage)
 
+## Installation
+In case you want to install it use
+```py
+pip install git+https://github.com/stunlocked1/image-descent
+```
+
 ![image](https://github.com/stunlocked1/image-descent/assets/76593873/54cbfaa3-f293-49d5-af18-84a161dfedaa)
 
 opt = RandomDeltaSearch(descent.parameters(), 4e-2) (second order random search)
