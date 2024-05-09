@@ -15,3 +15,11 @@ def get_interpolated_value_torch(img:torch.Tensor, coord: torch.Tensor, mode:str
     while coord.ndim < 4: coord = coord.unsqueeze(0)
     return torch.nn.functional.grid_sample(img, coord, mode=mode, padding_mode="border", align_corners=False)[0,0,0,0]
 
+def get_interpolated_value_neighbours(img:torch.Tensor, coord:torch.Tensor):
+    x0, y0 = coord.int()
+    # get values
+    v00 = img[x0, y0]
+    v01 = img[x0, y0+1]
+    v10 = img[x0+1, y0]
+    v11 = img[x0+1, y0+1]
+    ...

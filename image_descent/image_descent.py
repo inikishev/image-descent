@@ -32,10 +32,10 @@ class ImageDescent(torch.nn.Module):
         grad_init: Optional[Callable | Sequence[Callable]] = None,
         grad_step: Optional[Callable | Sequence[Callable]] = None,
     ):
-        """Perform descent on an image as if it was loss landscape
+        """Perform descent on an image as if it was loss landscape.
 
         Args:
-            __path_or_array (str | np.ndarray | torch.Tensor | Sequence): Path to your image or array of already loaded image. It will be converted into black and white.
+            __path_or_array (str | np.ndarray | torch.Tensor | Sequence): Path to your image or array of already loaded image. It will be converted into black and white and normalized to 0-1 range.
             coords (Sequence[int  |  float] | Callable): Initial coordinates, either integer pixel coordinates, or floating point coords in (-1,-1) to (1,1) range.
             scale (int, optional): Scales the coordinates, equivalent to multiplying learning rate by this value. This is just to make learning rates smaller and closer to real ones. Defaults to 100.
             dtype (torch.dtype, optional): Data type in which calculations will be performed. Defaults to torch.float32.
@@ -89,17 +89,21 @@ class ImageDescent(torch.nn.Module):
         self.coords_history = []
         self.loss_history = []
 
-    @torch.no_grad
-    def forward(self):
+    def _image_gradient_fn_step(self):
         # if there are random transforms, we apply them
         # if image transforms are applied, gradient needs to be recalculated
         if self.img_step is not None:
             image = self.img_step(self.image)
-            gradients: tuple[torch.Tensor, torch.Tensor] = tuple([i.to(self.dtype) for i in Compose(self.grad_fn)(image)])
+            gradients: tuple[torch.Tensor, torch.Tensor] = tuple(reversed([i.to(self.dtype) for i in Compose(self.grad_fn)(image)]))
         else: image, gradients = self.image, self.gradients
-
         # random gradient transforms
         gradients = self.grad_step(gradients)
+
+        return image, gradients
+
+    @torch.no_grad
+    def forward(self):
+        image, gradients = self._image_gradient_fn_step()
 
         # save coords to history
         coords_detached = self.coords.detach().cpu().clone() # pylint:disable=E1102
@@ -163,6 +167,24 @@ class ImageDescent(torch.nn.Module):
         if show: plt.show()
         return fig, ax
 
+    def plot_transforms(self, n=3, figsize=None, show=False):
+        fig, ax = plt.subplots(n, self.ndim+1, figsize=figsize, layout='tight')
+        for i in range(n):
+            image, gradients = self._image_gradient_fn_step()
+            for j in range(len(ax[i])):
+                ax[i][j].set_frame_on(False)
+                ax[i][j].set_axis_off()
+                if j == 0:
+                    ax[i][j].set_title(f"Loss landscape {j}")
+                    ax[i][j].imshow(image, cmap='gray')
+                    current_coord = self.rel2abs(self.coords.detach().cpu()) # pylint:disable=E1102
+                    ax[i][j].scatter([current_coord[0]], [current_coord[1]], s=4)
+                else:
+                    ax[i][j].set_title(f"Gradient for {j} coordinate")
+                    ax[i][j].imshow(gradients[j-1], cmap='gray')
+        if show: plt.show()
+        return fig, ax
+
     def plot_losses(self, figsize=None, show=False):
         fig, ax = plt.subplots(1, 1, figsize=figsize, layout='tight')
         ax_plot(ax, self.loss_history)
@@ -170,11 +192,13 @@ class ImageDescent(torch.nn.Module):
         return fig, ax
 
     def plot_path(self, figsize=None, show=False):
+        """Plots the optimization path on top of the loss landscape image. Color of the dots represents loss at that step (blue=lowest loss)"""
         fig, ax = plt.subplots(1, 1, figsize=figsize, layout='tight')
         ax.set_title("Optimization path")
         ax.set_axis_off()
         ax.set_frame_on(False)
         ax.imshow(self.image, cmap='gray')
-        ax.plot(*list(zip(*self.get_coord_history_pixels())), marker='o', linestyle='-', markersize=2)
+        ax.plot(*list(zip(*self.get_coord_history_pixels())), linewidth=0.5, color='red', zorder=0)
+        ax.scatter(*list(zip(*self.get_coord_history_pixels())), c=self.loss_history, s=4, cmap='turbo', zorder=1, alpha=0.75)
         if show: plt.show()
         return fig, ax
