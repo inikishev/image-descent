@@ -45,7 +45,7 @@ for i in range(1000):
 
 descent.plot_path()
 ```
-![image](https://github.com/stunlocked1/image-descent/assets/76593873/d7525dfe-aefc-4bf2-b5c1-379611831214)
+![image](https://github.com/stunlocked1/image-descent/assets/76593873/5f9dedbb-29bb-489d-98cd-740803c34524)
 
 ## Descending functions
 You can optimize normal functions as well, for example:
@@ -60,7 +60,7 @@ for i in range(100):
     optimizer.step()
 descent.plot_path()
 ```
-![image](https://github.com/stunlocked1/image-descent/assets/76593873/8c5cceae-f2fb-4274-8afd-909c5dd02baf)
+![image](https://github.com/stunlocked1/image-descent/assets/76593873/18303ae7-5d7d-4ed2-9826-91653f032c20)
 
 ## How it works
 X and Y coordinates are the parameters that the optimizers try to optimize to find the lowest (darkest) spot on the image. Loss is given by `image[current_coordinates]`.
