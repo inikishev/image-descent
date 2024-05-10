@@ -20,7 +20,7 @@ descent.plot_path()
 ```
 ![image](https://github.com/stunlocked1/image-descent/assets/76593873/18dea516-3208-4966-9dcd-9282d2a9fc5d)
 
-Now to get a more accurate simulation we can make it stochastic by adding some randomness - adding noise and randomly shifting the loss landscape before each step:
+We can make it more stochastic - for example adding noise and randomly shifting the loss landscape before each step:
 ```py
 import random
 
@@ -47,17 +47,16 @@ descent.plot_path()
 ```
 ![image](https://github.com/stunlocked1/image-descent/assets/76593873/5f9dedbb-29bb-489d-98cd-740803c34524)
 
-
 ## How it works
 X and Y coordinates are the parameters that the optimizers try to optimize to find the lowest (darkest) spot on the image. Loss is given by `image[current_coordinates]`.
 
-The gradients are calculated as differences between every adjascent pixel along all axes (like this: `gradx, grady = (image[1:] - image[:-1], image[:,1:] - image[:,:-1])`. 
+The gradients are calculated using finite differences, like this: `gradx, grady = (image[1:] - image[:-1], image[:,1:] - image[:,:-1]`. 
 
 Then `x_gradient[current_coordinates]` is the X-coordinate gradient for the current point. 
 
 However since coordinates are not discrete, [torch.nn.functional.grid_sample](https://pytorch.org/docs/stable/generated/torch.nn.functional.grid_sample.html) is used to interpolate them. Thats why coordinates start at (-1,-1) and end at (1,1).
 
-## Images
+## More images
 I've used the same
 ```
 descent = ImageDescent(image, initial_coords, img_step=[random_shift, add_noise])
@@ -84,6 +83,16 @@ opt = Fromage(descent.parameters(), 2e-1) (https://github.com/jxbz/fromage)
 
 ![image](https://github.com/stunlocked1/image-descent/assets/76593873/54cbfaa3-f293-49d5-af18-84a161dfedaa)
 
+opt = SophiaG(descent.parameters(), 1e-2) (https://github.com/Liuhong99/Sophia)
+
+![image](https://github.com/stunlocked1/image-descent/assets/76593873/5a1d8734-a847-4ad5-bca8-5b7b7fda4c9c)
+
 opt = RandomDeltaSearch(descent.parameters(), 4e-2) (second order random search)
 
 ![image](https://github.com/stunlocked1/image-descent/assets/76593873/27251178-5392-45b4-b88a-95002d70df04)
+
+
+## Installation
+```py
+pip install git+https://github.com/stunlocked1/image-descent
+```
