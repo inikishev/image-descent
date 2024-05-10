@@ -36,20 +36,47 @@ class ImageDescent(torch.nn.Module):
         """Perform descent on an image as if it was loss landscape.
 
         Args:
-            __path_or_array (str | np.ndarray | torch.Tensor | Sequence): Path to your image or array of already loaded image. It will be converted into black and white and normalized to 0-1 range.
-            coords (Sequence[int  |  float] | Callable): Initial coordinates, either integer pixel coordinates, or floating point coords in (-1,-1) to (1,1) range.
-            scale (int, optional): Scales the coordinates, equivalent to multiplying learning rate by this value. This is just to make learning rates smaller and closer to real ones. Defaults to 100.
-            dtype (torch.dtype, optional): Data type in which calculations will be performed. Defaults to torch.float32.
-            smooth (int | None, optional): Image will be smoothed by this amount of reduce flat areas due to compression. By default uses gaussian blur with sigma=smooth. Defaults to 2.
-            loader (Callable | Sequence[Callable], optional): Function to load the image and make it black and white. Defaults to load_image.
-            grad_fn (Callable | Sequence[Callable], optional): Function to calculate the gradients. Defaults to get_gradients_by_shifting.
-            smooth_fn (Optional[Callable  |  Sequence[Callable]], optional): Function to smooth the image with `smooth`. Defaults to smooth_gaussian.
-            interp_fn (Callable): Function to interpolate float coordinates. Defaults to get_interpolated_value_torch.
-            outofbounds_fn (Callable): Function to handle out of bounds coordinates. Defaults to out_of_bounds_soft.
-            img_init (Optional[Callable  |  Sequence[Callable]], optional): Optional function or sequence of functions that will be applied to the image after loading it and before calculating gradients, e.g. any additional transforms you need like resizing or whatever. Defaults to None.
-            img_step (Optional[Callable  |  Sequence[Callable]], optional): Optional function or sequence of functions that will be applied to the image before each step, for example random transformations like randomly adding noise, etc. If this is specified, gradient will be recalculated each step from the transformed image. Defaults to None.
-            grad_init (Optional[Callable  |  Sequence[Callable]], optional): Optional function or sequence of functions that will be applied to the gradients after calculating them. Defaults to None.
-            grad_step (Optional[Callable  |  Sequence[Callable]], optional): Optional function or sequence of functions that will be applied to the gradients before each step, for example random transformations like randomly adding noise, etc. Defaults to None.
+            __path_or_array (str | np.ndarray | torch.Tensor | Sequence):
+            Path to your image or array of already loaded image. It will be converted into black and white and normalized to 0-1 range.
+
+            coords (Sequence[int  |  float] | Callable):
+            Initial coordinates, either integer pixel coordinates, or floating point coords in (-1,-1) to (1,1) range.
+
+            scale (int, optional):
+            Scales the coordinates, equivalent to multiplying learning rate by this value. This is just to make learning rates smaller and closer to real ones. Defaults to 100.
+
+            dtype (torch.dtype, optional):
+            Data type in which calculations will be performed. Defaults to torch.float32.
+
+            smooth (int | None, optional):
+            Image will be smoothed by this amount of reduce flat areas due to compression. By default uses gaussian blur with sigma=smooth. Defaults to 2.
+
+            loader (Callable | Sequence[Callable], optional):
+            Function to load the image and make it black and white. Defaults to load_image.
+
+            grad_fn (Callable | Sequence[Callable], optional):
+            Function to calculate the gradients. Defaults to get_gradients_by_shifting.
+
+            smooth_fn (Optional[Callable  |  Sequence[Callable]], optional):
+            Function to smooth the image with `smooth`. Defaults to smooth_gaussian.
+
+            interp_fn (Callable): Function to interpolate float coordinates.
+            Defaults to get_interpolated_value_torch.
+
+            outofbounds_fn (Callable):
+            Function to handle out of bounds coordinates. Defaults to out_of_bounds_soft.
+
+            img_init (Optional[Callable  |  Sequence[Callable]], optional):
+            Optional function or sequence of functions that will be applied to the image after loading it and before calculating gradients, e.g. any additional transforms you need like resizing or whatever. Defaults to None.
+
+            img_step (Optional[Callable  |  Sequence[Callable]], optional):
+            Optional function or sequence of functions that will be applied to the image before each step, for example random transformations like randomly adding noise, etc. If this is specified, gradient will be recalculated each step from the transformed image. Defaults to None.
+
+            grad_init (Optional[Callable  |  Sequence[Callable]], optional):
+            Optional function or sequence of functions that will be applied to the gradients after calculating them. Defaults to None.
+
+            grad_step (Optional[Callable  |  Sequence[Callable]], optional):
+            Optional function or sequence of functions that will be applied to the gradients before each step, for example random transformations like randomly adding noise, etc. Defaults to None.
         """
         super().__init__()
         self.scale = scale
@@ -138,16 +165,16 @@ class ImageDescent(torch.nn.Module):
     def get_coord_history_pixels(self):
         return [self.rel2abs(i) for i in self.coords_history]
 
-    def plot_image(self, figsize=None, show=False):
+    def plot_image(self, figsize=None, show=False, return_fig=False):
         fig, ax = plt.subplots(1, 1, figsize=figsize, layout='tight')
         ax.set_title("Loss landscape")
         ax.set_axis_off()
         ax.set_frame_on(False)
         ax.imshow(self.image, cmap='gray')
         if show: plt.show()
-        return fig, ax
+        if return_fig: return fig, ax
 
-    def plot_gradients(self, figsize=None, show=False):
+    def plot_gradients(self, figsize=None, show=False, return_fig=False):
         fig, ax = plt.subplots(1, self.ndim, figsize=figsize, layout='tight')
         for i, grad in enumerate(self.gradients):
             ax[i].set_title(f"Gradient for {i+1} coordinate")
@@ -155,9 +182,9 @@ class ImageDescent(torch.nn.Module):
             ax[i].set_frame_on(False)
             ax[i].imshow(grad, cmap='gray')
         if show: plt.show()
-        return fig, ax
+        if return_fig: return fig, ax
 
-    def plot_image_and_grad(self, figsize=None, show=False):
+    def plot_image_and_grad(self, figsize=None, show=False, return_fig=False):
         fig, ax = plt.subplots(1, self.ndim+1, figsize=figsize, layout='tight')
         for i in range(len(ax)):
             ax[i].set_frame_on(False)
@@ -171,9 +198,9 @@ class ImageDescent(torch.nn.Module):
                 ax[i].set_title(f"Gradient for {i} coordinate")
                 ax[i].imshow(self.gradients[i-1], cmap='gray')
         if show: plt.show()
-        return fig, ax
+        if return_fig: return fig, ax
 
-    def plot_transforms(self, n=3, figsize=None, show=False):
+    def plot_transforms(self, n=3, figsize=None, show=False, return_fig=False):
         fig, ax = plt.subplots(n, self.ndim+1, figsize=figsize, layout='tight')
         for i in range(n):
             image, gradients = self._image_gradient_fn_step()
@@ -189,15 +216,15 @@ class ImageDescent(torch.nn.Module):
                     ax[i][j].set_title(f"Gradient for {j} coordinate")
                     ax[i][j].imshow(gradients[j-1], cmap='gray')
         if show: plt.show()
-        return fig, ax
+        if return_fig: return fig, ax
 
-    def plot_losses(self, figsize=None, show=False):
+    def plot_losses(self, figsize=None, show=False, return_fig=False):
         fig, ax = plt.subplots(1, 1, figsize=figsize, layout='tight')
         ax_plot(ax, self.loss_history)
         if show: plt.show()
-        return fig, ax
+        if return_fig: return fig, ax
 
-    def plot_path(self, figsize=None, show=False):
+    def plot_path(self, figsize=None, show=False, return_fig=False):
         """Plots the optimization path on top of the loss landscape image. Color of the dots represents loss at that step (blue=lowest loss)"""
         fig, ax = plt.subplots(1, 1, figsize=figsize, layout='tight')
         ax.set_title("Optimization path")
@@ -207,4 +234,4 @@ class ImageDescent(torch.nn.Module):
         ax.plot(*list(zip(*self.get_coord_history_pixels())), linewidth=0.5, color='red', zorder=0)
         ax.scatter(*list(zip(*self.get_coord_history_pixels())), c=self.loss_history, s=4, cmap='turbo', zorder=1, alpha=0.75)
         if show: plt.show()
-        return fig, ax
+        if return_fig: return fig, ax
