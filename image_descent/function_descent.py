@@ -201,7 +201,7 @@ class FunctionDescent2D(torch.nn.Module):
         ax.set_title("Optimization path")
         ax.set_frame_on(False)
 
-        ax.plot(*list(zip(*self.coords_history)), linewidth=0.75, color='dodgerblue', zorder=2)
+        ax.plot(*list(zip(*self.coords_history)), linewidth=1, color='dodgerblue', zorder=2)
         ax.scatter(*list(zip(*self.coords_history)), c=self.loss_history, s=16, cmap='Spectral', zorder=1, alpha=0.75, marker='x')
         if show: plt.show()
         if return_fig: return fig, ax

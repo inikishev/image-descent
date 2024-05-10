@@ -89,7 +89,7 @@ class Sphere(Surface):
     def __call__(self, x, y):
         return x ** 2 + y ** 2
     def domain(self): return (-5.12, 5.12), (-5.12, 5.12)
-    def start(self): return (-5, 4.9)
+    def start(self): return (-5, 4)
     def minimum(self): return (0, 0)
 sphere = Sphere()
 
