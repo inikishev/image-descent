@@ -174,7 +174,7 @@ class FunctionDescent2D(torch.nn.Module):
         ax.set_title("Loss landscape")
         ax.set_frame_on(False)
         cmesh = ax.pcolormesh(*image, cmap=cmap, zorder=0)
-        if levels: ax.contour(*image, linewidths=0.5, alpha=0.5, cmap='Spectral', levels=levels)
+        if levels: ax.contour(*image, linewidths=0.5, alpha=0.5, cmap='binary', levels=levels)
         current_coord = self.coords.detach().cpu() # pylint:disable=E1102
         minimum = self.minimum
         ax.scatter([current_coord[0]], [current_coord[1]], s=4)
@@ -201,7 +201,7 @@ class FunctionDescent2D(torch.nn.Module):
         ax.set_title("Optimization path")
         ax.set_frame_on(False)
 
-        ax.plot(*list(zip(*self.coords_history)), linewidth=0.5, color='blue', zorder=2)
+        ax.plot(*list(zip(*self.coords_history)), linewidth=0.75, color='dodgerblue', zorder=2)
         ax.scatter(*list(zip(*self.coords_history)), c=self.loss_history, s=16, cmap='Spectral', zorder=1, alpha=0.75, marker='x')
         if show: plt.show()
         if return_fig: return fig, ax
