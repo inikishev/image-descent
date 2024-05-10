@@ -1,5 +1,5 @@
 # Pytorch image descent
-A library to test optimizers by visualizing how they descend on a your images. You can draw your own custom loss landscape and see what different optimizers do. The use is mostly to see if your momentum works as intended, but maybe there are other uses. Example:
+A library to test optimizers by visualizing how they descend on a your images. You can draw your own custom loss landscape and see what different optimizers do, or you can use any function. The use is mostly to see if your momentum works as intended, but maybe there are other uses. Example:
 ```py
 from image_descent import ImageDescent
 
@@ -46,6 +46,21 @@ for i in range(1000):
 descent.plot_path()
 ```
 ![image](https://github.com/stunlocked1/image-descent/assets/76593873/5f9dedbb-29bb-489d-98cd-740803c34524)
+
+## Descending functions
+You can optimize normal functions as well, for example:
+```py
+from image_descent import FunctionDescent2D
+descent = FunctionDescent2D(lambda x,y: x**2 + y**2, coords = (-1, -0.9))
+optimizer = torch.optim.Adam(descent.parameters(), lr=0.05)
+for i in range(100):
+    optimizer.zero_grad()
+    loss = descent()
+    loss.backward()
+    optimizer.step()
+descent.plot_path()
+```
+![image](https://github.com/stunlocked1/image-descent/assets/76593873/8c5cceae-f2fb-4274-8afd-909c5dd02baf)
 
 ## How it works
 X and Y coordinates are the parameters that the optimizers try to optimize to find the lowest (darkest) spot on the image. Loss is given by `image[current_coordinates]`.
