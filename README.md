@@ -45,7 +45,7 @@ for i in range(1000):
 
 descent.plot_path()
 ```
-![image](https://github.com/stunlocked1/image-descent/assets/76593873/5f9dedbb-29bb-489d-98cd-740803c34524)
+![image](https://github.com/stunlocked1/image-descent/assets/76593873/d7525dfe-aefc-4bf2-b5c1-379611831214)
 
 ## Descending functions
 You can optimize normal functions as well, for example:
