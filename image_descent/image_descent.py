@@ -1,6 +1,10 @@
 from typing import Optional,Any
 from collections.abc import Sequence, Callable
+import logging
 import matplotlib.pyplot as plt
+from matplotlib.figure import Figure
+from matplotlib.axes import Axes
+from matplotlib.animation import TimedAnimation
 import numpy as np
 import torch
 from .image_tools import imread, prepare_image
@@ -119,6 +123,11 @@ class ImageDescent(torch.nn.Module):
         self.coords_history = []
         self.loss_history = []
 
+        # animation
+        self._fig:Figure = None # type:ignore
+        self._ax:Axes = None # type:ignore
+        self._image:torch.Tensor = None # type:ignore
+
     def _image_gradient_fn_step(self):
         # if there are random transforms, we apply them
         # if image transforms are applied, gradient needs to be recalculated
@@ -133,7 +142,8 @@ class ImageDescent(torch.nn.Module):
 
     @torch.no_grad
     def forward(self):
-        image, gradients = self._image_gradient_fn_step()
+        # save image and gradients to object so that animation can see random transforms
+        self._image, self._gradients = self._image_gradient_fn_step()
 
         # save coords to history
         coords_detached = self.coords.detach().cpu().clone() # pylint:disable=E1102
@@ -141,7 +151,7 @@ class ImageDescent(torch.nn.Module):
 
         # we get the gradient for each axis at current coordinates, and since coords will be floats, the values will be interpolated
         grad = torch.zeros(self.ndim, dtype=self.dtype)
-        for i, param_grad in enumerate(gradients): grad[i] = self.interp_fn(param_grad, coords_detached)
+        for i, param_grad in enumerate(self._gradients): grad[i] = self.interp_fn(param_grad, coords_detached)
 
         # handle optimizers going outside of the image
         grad = self.outofbounds_fn(coords_detached, grad)
@@ -152,7 +162,7 @@ class ImageDescent(torch.nn.Module):
         else: self.coords.grad += grad * self.scale
 
         # return loss, which is value of the image at current coords
-        loss = self.interp_fn(image, coords_detached)
+        loss = self.interp_fn(self._image, coords_detached)
         self.loss_history.append(loss)
         return loss
 
@@ -167,6 +177,38 @@ class ImageDescent(torch.nn.Module):
     def step(self): return self.forward()
     def step_nograd(self): return self.forward_nograd()
 
+    def animation_step(self, title=None, figsize=None):
+        if self._fig is None:
+            import celluloid
+            self._fig, self._ax = plt.subplots(1, 1, figsize=figsize, layout='tight')
+            if title is not None: self._ax.set_title(title)
+            self._ax.set_axis_off()
+            self._ax.set_frame_on(False)
+            self._ax.imshow(self.image, cmap='gray')
+            coords = self.get_coord_history_pixels()
+            if len(coords) > 0:
+                self._ax.plot(*list(zip(*coords)), linewidth=0.5, color='red', zorder=0)
+                self._ax.scatter(*list(zip(*coords)), c=self.loss_history, s=4, cmap='turbo', zorder=1, alpha=0.75, vmin=0, vmax=1)
+            self._camera = celluloid.Camera(self._fig)
+
+        else:
+            if self.img_step is not None and self._image is not None: self._ax.imshow(self._image, cmap='gray')
+            else: self._ax.imshow(self.image, cmap='gray')
+            coords = self.get_coord_history_pixels()
+            self._ax.plot(*list(zip(*coords)), linewidth=0.5, color='red', zorder=0)
+            self._ax.scatter(*list(zip(*coords)), c=self.loss_history, s=4, cmap='turbo', zorder=1, alpha=0.75, vmin=0, vmax=1)
+            self._camera.snap()
+
+    def to_html5_video(self, seconds = 10, interval = None, blit=True, **kwargs):
+        if seconds is not None:
+            if interval is not None: logging.warning('to_html5_video: `interval` argument has no effect when `seconds` is specified.')
+            interval = (seconds / len(self._camera._photos)) * 1000
+        from IPython.display import HTML
+        animation = self._camera.animate(interval=interval, blit=blit, **kwargs)
+        out = HTML(animation.to_html5_video())
+        plt.close(self._fig)
+        return out
+
     # Plotting
     def rel2abs(self, coord):
         return [((c + 1) / 2) * s for c,s in zip(coord, self.shape)]
@@ -174,9 +216,9 @@ class ImageDescent(torch.nn.Module):
     def get_coord_history_pixels(self):
         return [self.rel2abs(i) for i in self.coords_history]
 
-    def plot_image(self, figsize=None, show=False, return_fig=False):
+    def plot_image(self, figsize=None, title="Loss landscape", show=False, return_fig=False):
         fig, ax = plt.subplots(1, 1, figsize=figsize, layout='tight')
-        ax.set_title("Loss landscape")
+        if title is not None: ax.set_title(title)
         ax.set_axis_off()
         ax.set_frame_on(False)
         ax.imshow(self.image, cmap='gray')
@@ -235,11 +277,7 @@ class ImageDescent(torch.nn.Module):
 
     def plot_path(self, figsize=None, show=False, return_fig=False):
         """Plots the optimization path on top of the loss landscape image. Color of the dots represents loss at that step (blue=lowest loss)"""
-        fig, ax = plt.subplots(1, 1, figsize=figsize, layout='tight')
-        ax.set_title("Optimization path")
-        ax.set_axis_off()
-        ax.set_frame_on(False)
-        ax.imshow(self.image, cmap='gray')
+        fig, ax = self.plot_image(figsize=figsize, title="path on loss landscape", show=False, return_fig=True) # type:ignore
         ax.plot(*list(zip(*self.get_coord_history_pixels())), linewidth=0.5, color='red', zorder=0)
         ax.scatter(*list(zip(*self.get_coord_history_pixels())), c=self.loss_history, s=4, cmap='turbo', zorder=1, alpha=0.75)
         if show: plt.show()
