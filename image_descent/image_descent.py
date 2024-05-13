@@ -156,7 +156,16 @@ class ImageDescent(torch.nn.Module):
         self.loss_history.append(loss)
         return loss
 
+    def forward_nograd(self):
+        image, gradients = self._image_gradient_fn_step()
+        coords_detached = self.coords.detach().cpu().clone() # pylint:disable=E1102
+        self.coords_history.append(coords_detached)
+        loss = self.interp_fn(image, coords_detached)
+        self.loss_history.append(loss)
+        return loss
+
     def step(self): return self.forward()
+    def step_nograd(self): return self.forward_nograd()
 
     # Plotting
     def rel2abs(self, coord):
