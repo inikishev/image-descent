@@ -4,7 +4,7 @@ A library to test optimizers by visualizing how they descend on a your images. Y
 from image_descent import ImageDescent
 
 # you can put path to an image or a numpy array / torch tensor.
-# It will be converted into black-and-white channel-last.
+# It will be converted into black-and-white. Darkest pixel is the global minimum.
 image = r"surfaces/spiral.jpg"
 
 # coords are the initial coordinate to start optimization from
