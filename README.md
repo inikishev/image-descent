@@ -109,5 +109,5 @@ opt = RandomDeltaSearch(descent.parameters(), 4e-2) (second order random search)
 
 ## Installation
 ```py
-pip install git+https://github.com/stunlocked1/image-descent
+pip install git+https://github.com/qq-me/image-descent
 ```
